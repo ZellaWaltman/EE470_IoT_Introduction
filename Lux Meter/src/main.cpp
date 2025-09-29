@@ -1,14 +1,16 @@
 // -----------------------------
-// Title: Random Number Plotter
+// Title: LUX Meter
 // -----------------------------
 // Program Detail: 
 // -----------------------------
-// Purpose: This program generates a random number (0 to 100) every 5
-// seconds, stores the values in an array, and prints these values to
-// the terminal. These values are then plotted using the serial plotter.
+// Purpose: This program is a LUX meter. When the LUX value is below the threshold (300 LUX),
+// a buzzer will sound, and an RGB LED will be white. Past the threshold (300 LUX), the buzzer
+// will turn off, and the RGB LED will turn more Red the higher the LUX value becomes. The
+// LUX value will be printed to the terminal every 0.5s. If the enters 'B' or 'b' into the
+// Terminal, the buzzer will buzz for 5 seconds, to ensure it is working correctly.
 
-// Inputs: This program uses the random() function to generate random numbers.
-// Outputs: The outputs of this program are a random number (0-100) every 5 seconds.
+// Inputs: LDR pin analog reading (A0), terminal input ('b' or 'B')
+// Outputs: RGB LED (D5, D6, D7), Buzzer (D1), Terminal Output LUX Reading
 // Date: 09/19/2025 12:04 PM PT
 // Compiler: Arduino IDE 2.3.6
 // Author: Zella Waltman
@@ -21,7 +23,7 @@
 
 #include <Arduino.h>
 
-//------------------------------
+//------------------------------4
 // Definitions & Variables
 //------------------------------
 
