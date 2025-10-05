@@ -1,3 +1,7 @@
+SHOW DATABASES;
+
+USE u551180265_ZellaWaltman;
+
 CREATE TABLE sensor_register(
     node_name VARCHAR(10) NOT NULL,
     manufacturer VARCHAR(10) NOT NULL,
