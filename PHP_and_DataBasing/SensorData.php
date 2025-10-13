@@ -13,11 +13,12 @@
         die("Connection failed: " . $conn->connect_error); // Stop script & send error message
     }
     
+    // If node=value in URL, use value.
     if (isset($_GET['action']) && $_GET['action'] === 'chart_data') {
-        // which node to plot (default node_1)
+        // Default to node_1 if not provided
         $node = $_GET['node'] ?? 'node_1';
     
-        // fetch only what's needed for the chart
+        // fetch chart data, order by time (oldest to newest)
         $stmt = $conn->prepare("
             SELECT time_received, temperature
             FROM sensor_data
@@ -28,10 +29,13 @@
         $stmt->execute();
         $res = $stmt->get_result();
     
+        // Formatting data as JSON
         $rows = [];
+        // Loop through results -> php array
         while ($r = $res->fetch_assoc()) { $rows[] = $r; }
         $stmt->close();
-    
+        
+        // Set to JSON & send to client
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($rows);
         $conn->close();
@@ -43,17 +47,18 @@
     
     $message = "";
     
+    // All 3 parameters must have values. If so, convert to float.
     if (isset($_GET['node_name'], $_GET['temperature'], $_GET['humidity'])) {
         $node_name   = trim($_GET['node_name']);
         $temperature = (float)$_GET['temperature'];
         $humidity    = (float)$_GET['humidity'];
-        $time        = $_GET['time_received'] ?? null;
+        $time        = $_GET['time_received'] ?? null; //Grab time if there is any, not required.
     
-        // --- Range checks (adjust to your assignment specs) ---
+        // Range checks
         if ($temperature < -50 || $temperature > 150 || $humidity < 0 || $humidity > 100) {
             $message = "Error - Invalid values: temperature or humidity out of range.";
         } else {
-            // --- Confirm node is registered ---
+            // Confirm node is registered - NO UNREGISTERED NODES ALLOWED
             $stmt = $conn->prepare("SELECT 1 FROM sensor_register WHERE node_name = ?");
             $stmt->bind_param("s", $node_name);
             $stmt->execute();
@@ -62,20 +67,25 @@
             if ($stmt->num_rows === 0) {
                 $message = "Error - Node '$node_name' is not registered.";
             } else {
-                // --- Insert new record ---
+                
+                // Insert new data into table 
                 try {
                     if ($time && $time !== "") {
                         $stmt2 = $conn->prepare("INSERT INTO sensor_data (node_name, time_received, temperature, humidity)
                                                   VALUES (?, ?, ?, ?)");
                         $stmt2->bind_param("ssdd", $node_name, $time, $temperature, $humidity);
                     } else {
-                        // Let DB assign CURRENT_TIMESTAMP
+                        // DB will assign CURRENT_TIMESTAMP
                         $stmt2 = $conn->prepare("INSERT INTO sensor_data (node_name, temperature, humidity)
                                                   VALUES (?, ?, ?)");
                         $stmt2->bind_param("sdd", $node_name, $temperature, $humidity);
                     }
                     $stmt2->execute();
+                    
+                    // Success message
                     $message = "Data inserted successfully for $node_name!";
+                    
+                    // Error messages - 1062 is a duplicate key
                 } catch (mysqli_sql_exception $e) {
                     if ($e->getCode() == 1062) {
                         $message = "Error - Duplicate entry for node/time combination.";
