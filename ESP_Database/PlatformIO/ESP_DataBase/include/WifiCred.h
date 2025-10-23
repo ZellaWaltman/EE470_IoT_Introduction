@@ -19,7 +19,7 @@
 #ifndef WIFICRED_H 
 #define WIFICRED_H 
 
-const char* ssid     = "BigPapa"; // must be exactly as it apears - case sensitive
-const char* password = "wificonnect";
+const char* ssid     = "ssid"; // must be exactly as it apears - case sensitive
+const char* password = "password";
 
 #endif // WIFICRED_H 
