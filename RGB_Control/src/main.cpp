@@ -22,26 +22,19 @@
 // -----------------------------
 
 #include <Arduino.h>
+#include "button.h"
+#include "WifiCred.h"
+#include "LEDcontrol.h"
+#include "RGBcontrol.h"
 
 //------------------------------4
 // Definitions & Variables
 //------------------------------
 
-// Define Pins
-//------------------------------
-#define redPin D5 
-#define greenPin D6 
-#define bluePin D7 
-#define LDR_Pin A0 // LDR connected to Analog pin A0
-#define BUZZER D1 // Buzzer Pin (D1)
-
 // ADC & Voltage Divider Constants
 //----------------------------------
 #define VIN 3.3 // 3.3 V Power Voltage
 
-// Function Declarations
-//------------------------------
-void setColor(int redValue, int greenValue,  int blueValue);
 
 // -----------------------------
 // Main Program
@@ -49,23 +42,23 @@ void setColor(int redValue, int greenValue,  int blueValue);
 
 void setup() {
 
-  // Defining pins as OUTPUT
-  pinMode(redPin,  OUTPUT);              
-  pinMode(greenPin, OUTPUT);
-  pinMode(bluePin, OUTPUT);
-  pinMode(BUZZER,  OUTPUT);  
+  Serial.begin(9600);
 
-  setColor(255, 255, 255); // LED is initially white
+  buttonInit();
+  LED_Initialize();
+  RGB_Initialize();
 
-  Serial.begin(9600); // Set Baud Rate (9600)
+  checkWifi(); // Check Wifi Connection
+  connectionDetails(); // Get Connection Info
+
+  // Do one fetch at boot
+  fetchAndApply();
+  RGB_UpdateFromURL();
 }
 
-void  loop() {
-    setColor(255, 0, 0);
-}
+void loop() {
+  buttonPress(); // Check if Button is pressed
 
-void setColor(int redValue, int greenValue,  int blueValue) {
-  analogWrite(redPin, redValue);
-  analogWrite(greenPin,  greenValue);
-  analogWrite(bluePin, blueValue);
+  // Short sleep to reduce CPU churn
+  delay(10);
 }
