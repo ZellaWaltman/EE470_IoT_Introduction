@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title> ESP8266 Sensor Data </title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+      }
+      #chart-container {
+        width: 100%;
+        height: 440px;
+        margin: 0;
+        padding: 0;
+      }
+      #mycanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    </style>
+    <meta charset="utf-8">
+  </head>
+  <body style="margin:0; padding:0; background:#fff;">
+    <div id="chart-container">
+      <canvas id="mycanvas"></canvas>
+    </div>
+
+    <!-- javascript -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <!-- This is the location of app.js file - we are assuming it is in the same folder as this file-->
+    <script type="text/javascript" src="./ESP_app.js"></script>
+    
+  </body>
+</html>
