@@ -1,3 +1,22 @@
+//---------------------------------------------------------------
+// Title: button.cpp
+//---------------------------------------------------------------
+// Program Detail:
+//---------------------------------------------------------------
+// Purpose: This is a file which stores the button press functions.
+
+// Inputs: Button (D1)
+// Outputs: LED value from results.txt
+// Date: 11/01/2025 6:01 PM PT
+// Compiler: PIO Version 3.3.4
+// Author: Zella Waltman
+// Versions:
+//      V1.0 Original Code
+
+//---------------------------------------------------------------
+// File Dependencies: LEDcontrol.h, RGBcontrol.h
+//---------------------------------------------------------------
+
 #include <Arduino.h>
 #include "control.h"
 
@@ -32,11 +51,8 @@ void buttonPress() {
         if (current - lastBtn > 80) { // millis() debounce
             lastBtn = current;
             Serial.print("\nButton Pressed.\n");
-            // 1) Fetch & apply from PHP (updates LED + RGB + lastLED/lastR/G/B)
-            applyFromPHP();
-
-            // 2) OPTIONAL: log the current state to Sheets with device time
-            logToSheets();
+            applyFromPHP(); // Get LED State & RGB Values
+            logToSheets(); // Send Data to Google Spreadsheet
         }
     }
 }

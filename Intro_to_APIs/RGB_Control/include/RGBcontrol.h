@@ -1,9 +1,9 @@
 //---------------------------------------------------------------
-// Title: LEDcontrol.h
+// Title: RGBcontrol.h
 //---------------------------------------------------------------
 // Program Detail:
 //---------------------------------------------------------------
-// Purpose: This is a header file which stores the LED control functions.
+// Purpose: This is a header file which stores the RGB LED control functions.
 
 // Inputs: none
 // Outputs: none

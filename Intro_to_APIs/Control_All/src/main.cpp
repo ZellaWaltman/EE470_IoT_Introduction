@@ -1,39 +1,33 @@
-// -----------------------------
-// Title: LUX Meter
-// -----------------------------
-// Program Detail: 
-// -----------------------------
-// Purpose: This program is a LUX meter. When the LUX value is below the threshold (300 LUX),
-// a buzzer will sound, and an RGB LED will be white. Past the threshold (300 LUX), the buzzer
-// will turn off, and the RGB LED will turn more Red the higher the LUX value becomes. The
-// LUX value will be printed to the terminal every 0.5s. If the enters 'B' or 'b' into the
-// Terminal, the buzzer will buzz for 5 seconds, to ensure it is working correctly.
+//---------------------------------------------------------------
+// Title: Control All
+//---------------------------------------------------------------
+// Program Detail:
+//---------------------------------------------------------------
+// Purpose: The purpose of this program is to turn an LED on or off
+// depending on the contents of a remote txt file (results.txt),
+// as well as control the color of an RGB LED depending on the contents
+// of a remote txt file (rgb.txt). A user controls the LED through an
+// ON and OFF button on a webpage, and RGB values through a slider.
+// Once a button is pressed, these values are read by the ESP8266,
+// And the LEDs respond accordingly. After the LEDs respond, the data
+// is sent to a Google Spreadsheet with a timestamp from timeapi.io.
 
-// Inputs: LDR pin analog reading (A0), terminal input ('b' or 'B')
-// Outputs: RGB LED (D5, D6, D7), Buzzer (D1), Terminal Output LUX Reading
-// Date: 09/19/2025 12:04 PM PT
-// Compiler: Arduino IDE 2.3.6
+// Inputs: Button (D1)
+// Outputs: LED (D2) RGB LED (D5, D6, D7)
+// Date: 11/03/2025 3:43 PM PT
+// Compiler: PIO Version 3.3.4
 // Author: Zella Waltman
 // Versions:
-//          V1.0 = Original Code
+//      V1.0 Original Code
 
-// -----------------------------
-// File Dependencies: None
-// -----------------------------
+//---------------------------------------------------------------
+// File Dependencies: control.h, WifiCred.h, button.h
+//---------------------------------------------------------------
 
 #include <Arduino.h>
 #include "button.h"
 #include "WifiCred.h"
 #include "control.h"
-
-//------------------------------4
-// Definitions & Variables
-//------------------------------
-
-// ADC & Voltage Divider Constants
-//----------------------------------
-#define VIN 3.3 // 3.3 V Power Voltage
-
 
 // -----------------------------
 // Main Program
@@ -43,21 +37,20 @@ void setup() {
 
   Serial.begin(9600);
 
+  // Initialization
   buttonInit();
-
   LED_Initialize();
   RGB_Initialize();
 
   checkWifi(); // Check Wifi Connection
   connectionDetails(); // Get Connection Info
 
-  // Do one fetch at boot
-  // 1) Fetch & apply from PHP (updates LED + RGB + lastLED/lastR/G/B)
-      applyFromPHP();
+  // Fetch LED State and RGB Values on boot
+  applyFromPHP();
 }
 
 void loop() {
-  buttonPress(); // Check if Button is pressed
+  buttonPress(); // Check if Button is pressed, if pressed, execute
 
   // Short sleep to reduce CPU churn
   delay(5);

@@ -1,3 +1,24 @@
+//---------------------------------------------------------------
+// Title: WifiConnect.cpp
+//---------------------------------------------------------------
+// Program Detail:
+//---------------------------------------------------------------
+// Purpose: The purpose of this program is to ensure that the
+// ESP8266 connects to the wifi, and prints the connection details to
+// to the user
+
+// Inputs: Wifi Credentials
+// Outputs: none
+// Date: 11/01/2025  2:16 PM PT
+// Compiler: PIO Version 3.3.4
+// Author: Zella Waltman
+// Versions:
+//      V1.0 Original Code
+
+//---------------------------------------------------------------
+// File Dependencies: PHPcontrol.h, WifiCred.h
+//---------------------------------------------------------------
+
 #include "WifiCred.h"
 
 // Constants

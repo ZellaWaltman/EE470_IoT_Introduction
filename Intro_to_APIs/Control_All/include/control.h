@@ -1,9 +1,11 @@
 //---------------------------------------------------------------
-// Title: button.h
+// Title: LEDcontrol.h
 //---------------------------------------------------------------
 // Program Detail:
 //---------------------------------------------------------------
-// Purpose: This is a header file which stores the button functions.
+// Purpose: This is a header file which stores the LED and RGB control functions,
+// as well as PHP and Google Sheets functions.
+
 // Inputs: none
 // Outputs: none
 // Date: 11/03/2025 3:10 PM PT
@@ -11,6 +13,7 @@
 // Author: Zella Waltman
 // Versions:
 //      V1.0 Original Code
+
 //---------------------------------------------------------------
 // File Dependencies: none
 //---------------------------------------------------------------
