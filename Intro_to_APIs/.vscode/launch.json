@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/zellwaltman/Documents/PlatformIO/EE470_IoT_Introduction/Intro_to_APIs/Control_All/src",
+      "program": "/Users/zellwaltman/Documents/PlatformIO/EE470_IoT_Introduction/Intro_to_APIs/Control_All/src/build/Debug/outDebug"
+    }
+  ]
+}

@@ -22,10 +22,9 @@
 // -----------------------------
 
 #include <Arduino.h>
-#include "button.h"
+#include "buttons.h"
 #include "WifiCred.h"
-#include "LEDcontrol.h"
-#include "RGBcontrol.h"
+#include "control.h"
 
 //------------------------------4
 // Definitions & Variables
@@ -52,12 +51,11 @@ void setup() {
   connectionDetails(); // Get Connection Info
 
   // Do one fetch at boot
-  fetchAndApply();
-  RGB_UpdateFromURL();
+  syncFromPHP_andLogToSheets();
 }
 
 void loop() {
-  buttonPress(); // Check if Button is pressed
+  buttonAPress(); // Check if Button is pressed
 
   // Short sleep to reduce CPU churn
   delay(10);

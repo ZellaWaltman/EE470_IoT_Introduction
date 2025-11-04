@@ -15,17 +15,12 @@
 // File Dependencies: none
 //---------------------------------------------------------------
 
-#ifndef LEDCONTROL_H
-#define LEDCONTROL_H 
-
-#include <Arduino.h>
+#ifndef BUTTONS_H 
+#define BUTTONS_H 
 
 // Function Declarations
 // ------------------------------
-void LED_Initialize();
-void setLed(bool on);
-void ensureWiFi();
-void applyStateFromText(const String& txtIn);
-bool fetchAndApply(); 
+void buttonInit();
+void buttonAPress();
 
-#endif // LEDCONTROL_H
+#endif // BUTTONS_H 
