@@ -41,7 +41,7 @@ if (is_readable($resultsFile)) {
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <title>ESP8266 LED Control</title>
+        <title>LED Control</title>
         <style>
             body{font:14px system-ui,Arial;margin:3rem auto;max-width:480px}
             .card{border:1px solid #ddd;border-radius:12px;padding:1rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
