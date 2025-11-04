@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Intro to API Project Menu</title>
+      <style>
+        body {
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+          margin: 0;
+          background-color: #fafafa;
+          color: #222;
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+        }
+    
+        /* --- Navigation Bar Styling --- */
+        .navbar {
+          background: #fff;
+          border-bottom: 1px solid #ddd;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          padding: 14px 10px;
+          position: fixed;
+          width: 100%;
+          top: 0;
+          left: 0;
+          z-index: 1000;
+        }
+    
+        .navbar button {
+          border: 1px solid #ccc;
+          border-radius: 999px;
+          padding: 10px 24px;
+          background: #fff;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+    
+        .navbar button:hover {
+          background: #f2f2f2;
+          transform: translateY(-2px);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+    
+        .navbar button.active {
+          background: #0078d4;
+          color: #fff;
+          border-color: #0078d4;
+          box-shadow: 0 2px 6px rgba(0, 120, 212, 0.3);
+        }
+    
+        /* --- Page Content Area --- */
+        .content {
+          flex: 1;
+          margin-top: 80px; /* height of Navigation Bar */
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+        }
+    
+        iframe {
+          border: none;
+          width: 100%;
+          height: calc(100vh - 90px);
+        }
+      </style>
+    </head>
+    <body>
+          <!-- Navigation Bar -->
+          <div class="navbar">
+            <button class="active" onclick="loadPage('https://zellawaltman.org/RGB_Control/LED_Control.php', this)">LED Control</button>
+            <button onclick="loadPage('https://zellawaltman.org/RGB_Control/RGB_Control.php', this)">RGB Control</button>
+            <button onclick="loadPage('https://zellawaltman.org/RGB_Control/sheets.html', this)">Google Sheets Visualization</button>
+            <button onclick="openGitHub()">GitHub (IoT Folder)</button>
+          </div>
+        
+          <!-- Content container -->
+          <div class="content">
+            <iframe id="pageFrame" src="https://zellawaltman.org/RGB_Control/LED_Control.php"></iframe>
+          </div>
+        
+          <script>
+            function loadPage(url, btn) {
+              // Load new page in iframe
+              document.getElementById("pageFrame").src = url;
+        
+              // Highlight active button
+              document.querySelectorAll(".navbar button").forEach(b => b.classList.remove("active"));
+              btn.classList.add("active");
+            }
+            
+        
+            // GitHub button — open new tab instead of loading in page (messes up otherwise)
+            function openGitHub() {
+                window.open("https://github.com/ZellaWaltman/EE470_IoT_Introduction", "_blank");
+            }
+          </script>
+    </body>
+</html>
