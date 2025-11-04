@@ -19,7 +19,7 @@ const char* RGB_URL = "https://zellawaltman.org/RGB_Control/rgb.txt";
 // Google Sheets URL
 const char* SHEETS_POST_URL = "https://script.google.com/macros/s/AKfycbywJLt1Zn7bIln_j-aXDWwkK_KeOg9PAAqwRbec264DgzOvLk34ECfuJuF7-pjbp6qg/exec";
 
-// Clamping for RGB
+// Clamp numeric values to 0-255 range for RGB, 0 if less than 0, 255 if greater than 255
 static uint8_t clamp255(int v){ return (uint8_t)(v < 0 ? 0 : (v > 255 ? 255 : v)); }
 
 // Remembered States for Logging

@@ -1,9 +1,11 @@
 //---------------------------------------------------------------
-// Title: button.h
+// Title: PHPcontrol.h
 //---------------------------------------------------------------
 // Program Detail:
 //---------------------------------------------------------------
-// Purpose: This is a header file which stores the button functions.
+// Purpose: This is a header file which stores the LED control
+// and PHP connection functions.
+
 // Inputs: none
 // Outputs: none
 // Date: 11/01/2025 5:57 PM PT
@@ -11,6 +13,7 @@
 // Author: Zella Waltman
 // Versions:
 //      V1.0 Original Code
+
 //---------------------------------------------------------------
 // File Dependencies: none
 //---------------------------------------------------------------
