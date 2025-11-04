@@ -22,7 +22,7 @@
 // -----------------------------
 
 #include <Arduino.h>
-#include "buttons.h"
+#include "button.h"
 #include "WifiCred.h"
 #include "control.h"
 
@@ -44,6 +44,7 @@ void setup() {
   Serial.begin(9600);
 
   buttonInit();
+
   LED_Initialize();
   RGB_Initialize();
 
@@ -51,12 +52,13 @@ void setup() {
   connectionDetails(); // Get Connection Info
 
   // Do one fetch at boot
-  syncFromPHP_andLogToSheets();
+  // 1) Fetch & apply from PHP (updates LED + RGB + lastLED/lastR/G/B)
+      applyFromPHP();
 }
 
 void loop() {
-  buttonAPress(); // Check if Button is pressed
+  buttonPress(); // Check if Button is pressed
 
   // Short sleep to reduce CPU churn
-  delay(10);
+  delay(5);
 }

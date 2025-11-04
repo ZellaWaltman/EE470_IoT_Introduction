@@ -44,6 +44,46 @@ void LEDInit() {
     setLed(false); // start OFF
 }
 
+
+// ------------------------------------------------------------
+// RGB LED Functions
+// ------------------------------------------------------------
+
+void RGB_Initialize() {
+    // Defining pins as OUTPUT
+    pinMode(redPin,  OUTPUT);              
+    pinMode(greenPin, OUTPUT);
+    pinMode(bluePin, OUTPUT);
+
+    analogWriteRange(255); // Maps to 255
+    setColor(255, 255, 255); // LED is initially white
+}
+
+void setColor(int redValue, int greenValue,  int blueValue) {
+    analogWrite(redPin, redValue);
+    analogWrite(greenPin, greenValue);
+    analogWrite(bluePin, blueValue);
+}
+
+// "R,G,B" parser with trimming and clamping
+static bool parseCSV_RGB(const String& s, uint8_t &r, uint8_t &g, uint8_t &b){
+  int c1 = s.indexOf(',');
+  if (c1 < 0) return false;
+  int c2 = s.indexOf(',', c1+1);
+  if (c2 < 0) return false;
+
+  String rs = s.substring(0, c1);       rs.trim();
+  String gs = s.substring(c1+1, c2);    gs.trim();
+  String bs = s.substring(c2+1);        bs.trim();
+
+  if (!rs.length() || !gs.length() || !bs.length()) return false;
+
+  r = clamp255(rs.toInt());
+  g = clamp255(gs.toInt());
+  b = clamp255(bs.toInt());
+  return true;
+}
+
 // ------------------------------------------------------------
 // WiFi & PHP Functions
 // ------------------------------------------------------------
@@ -124,50 +164,6 @@ static bool fetchRGB_fromPHP(uint8_t& r, uint8_t& g, uint8_t& b) {
   return false;
 }
 
-// ------------------------------------------------------------
-// RGB LED Functions
-// ------------------------------------------------------------
-
-void RGB_Initialize() {
-    // Defining pins as OUTPUT
-    pinMode(redPin,  OUTPUT);              
-    pinMode(greenPin, OUTPUT);
-    pinMode(bluePin, OUTPUT);
-
-    analogWriteRange(255); // Maps to 255
-    setColor(255, 255, 255); // LED is initially white
-}
-
-void setColor(int redValue, int greenValue,  int blueValue) {
-    analogWrite(redPin, redValue);
-    analogWrite(greenPin, greenValue);
-    analogWrite(bluePin, blueValue);
-}
-
-// "R,G,B" parser with trimming and clamping
-static bool parseCSV_RGB(const String& s, uint8_t &r, uint8_t &g, uint8_t &b){
-  int c1 = s.indexOf(',');
-  if (c1 < 0) return false;
-  int c2 = s.indexOf(',', c1+1);
-  if (c2 < 0) return false;
-
-  String rs = s.substring(0, c1);       rs.trim();
-  String gs = s.substring(c1+1, c2);    gs.trim();
-  String bs = s.substring(c2+1);        bs.trim();
-
-  if (!rs.length() || !gs.length() || !bs.length()) return false;
-
-  r = clamp255(rs.toInt());
-  g = clamp255(gs.toInt());
-  b = clamp255(bs.toInt());
-  return true;
-}
-
-// ------------------------------------------------------------
-// Control from PHP Function
-// ------------------------------------------------------------
-
-// Called when Apply button is pressed
 bool applyFromPHP() {
   String ledState = "OFF";
   uint8_t r=0, g=0, b=0;
@@ -188,21 +184,7 @@ bool applyFromPHP() {
 // Google Sheets Functions
 // ------------------------------------------------------------
 
-static bool postToSheets(const char* url, const String& body) {
-  if (WiFi.status() != WL_CONNECTED) checkWifi();
-  if (WiFi.status() != WL_CONNECTED) return false;
-
-  WiFiClientSecure client; client.setInsecure();  // OK for class project
-  HTTPClient http;
-  http.setTimeout(5000); // 5s is plenty
-  if (!http.begin(client, url)) { http.end(); return false; }
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  int code = http.POST(body);
-  http.end();
-  return (code >= 200 && code < 300);
-}
-
-bool Log_to_Sheets() {
+bool logToSheets() {
   String ts = getTime();                 // your existing function
   int dot = ts.indexOf('.');             // trim fractional seconds
   if (dot > 0) ts = ts.substring(0, dot); // -> "YYYY-MM-DDTHH:MM:SS"
@@ -215,4 +197,18 @@ bool Log_to_Sheets() {
   if (ts.length()) body += "&ts=" + ts;  // Apps Script will use this
 
   return postToSheets(SHEETS_POST_URL, body);
+}
+
+static bool postToSheets(const char* url, const String& body) {
+  if (WiFi.status() != WL_CONNECTED) checkWifi();
+  if (WiFi.status() != WL_CONNECTED) return false;
+
+  WiFiClientSecure client; client.setInsecure(); // OK for hobby/testing
+  HTTPClient http;
+  http.setTimeout(5000);
+  if (!http.begin(client, url)) { http.end(); return false; }
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  int code = http.POST(body);
+  http.end();
+  return (code >= 200 && code < 300);
 }

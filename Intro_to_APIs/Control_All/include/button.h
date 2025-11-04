@@ -15,12 +15,12 @@
 // File Dependencies: none
 //---------------------------------------------------------------
 
-#ifndef BUTTONS_H 
-#define BUTTONS_H 
+#ifndef BUTTON_H 
+#define BUTTON_H 
 
 // Function Declarations
 // ------------------------------
 void buttonInit();
-void buttonAPress();
+void buttonPress();
 
-#endif // BUTTONS_H 
+#endif // BUTTON_H 

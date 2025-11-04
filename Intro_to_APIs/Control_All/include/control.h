@@ -25,23 +25,22 @@
 void LED_Initialize();
 void setLed(bool on);
 void applyStateFromText(const String& txtIn);
-static bool fetchLED_fromPHP(String& ledOut); 
 
 // RGB LED Function Declarations
 // ------------------------------
 static bool parseCSV_RGB(const String& s, uint8_t &r, uint8_t &g, uint8_t &b);
 void RGB_Initialize();
 void setColor(int redValue, int greenValue,  int blueValue); 
-static bool fetchRGB_fromPHP(uint8_t& r, uint8_t& g, uint8_t& b); 
 
-// PHP Control Function Declarations
+// PHP Function Declarations
 // ------------------------------------
+static bool fetchLED_fromPHP(String& ledOut); 
+static bool fetchRGB_fromPHP(uint8_t& r, uint8_t& g, uint8_t& b); 
 bool applyFromPHP();
 
 // Google Sheets Function Declarations
 // ------------------------------------
-bool Log_to_Sheets();
+bool logToSheets();
 static bool postToSheets(const char* url, const String& body);
-bool syncFromPHP_andLogToSheets();
 
 #endif // CONTROL_H
