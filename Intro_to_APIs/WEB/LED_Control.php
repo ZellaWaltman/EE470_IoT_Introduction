@@ -51,7 +51,7 @@ if (is_readable($resultsFile)) {
         </style>
     </head>
     <body>
-      <h2>ESP8266 LED Control</h2>
+      <h1>LED Control</h1>
       <div class="card">
         <p>LED State:
           <span id="status" class="pill <?php echo strtolower($state);?>">
