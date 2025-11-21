@@ -6,7 +6,7 @@
 // Purpose: This is a file which stores the button press functions.
 
 // Inputs: Button (D1)
-// Outputs: LED value from results.txt
+// Outputs: LED value from results.txt, RGB value from rgb.txt
 // Date: 11/01/2025 6:01 PM PT
 // Compiler: PIO Version 3.3.4
 // Author: Zella Waltman
@@ -14,7 +14,7 @@
 //      V1.0 Original Code
 
 //---------------------------------------------------------------
-// File Dependencies: LEDcontrol.h, RGBcontrol.h
+// File Dependencies: control.h
 //---------------------------------------------------------------
 
 #include <Arduino.h>

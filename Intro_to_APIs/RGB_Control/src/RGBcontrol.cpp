@@ -69,7 +69,7 @@ bool RGB_UpdateFromURL() {
   client.setInsecure();
   HTTPClient http;
 
-  // Cache buster - force to get a fresh copy of results.txt
+  // Cache buster - force to get a fresh copy of rgb.txt
   String url = String(RGB_URL) + "?t=" + String(millis());
 
   // Initial HTTP Connect
