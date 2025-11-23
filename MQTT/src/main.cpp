@@ -3,15 +3,22 @@
 //-----------------------------
 // Program Details:
 //-----------------------------
-// Purpose: Conenct to broker.mqtt-dashboard.com, Publish and subscribe
-// Dependencies: Make sure you have installed PubSubClient.h
+// Purpose: The purpose of this program is to connect to broker.mqtt-dashboard.com,
+// and publish and subscribe to three topics: a button input/LED control topic, a buttonpress topic,
+// and a topic which contains the voltage readings of the potentiometer. When a user sends a 1 to
+// the inTopic, either by sending a 1 directly or pressing a switch on the MQTT app, a LED will turn on.
+// When a user presses a switch on the board, a 1 will be sent to the switch topic, with a 0 following
+// after 5 seconds. The potentiometer value is read every 2 seconds and is automatically sent to the MQTT
+// broker.
+//
+// Dependencies: PubSubClient.h, ESP8266WiFi.h, ESP8266HTTPClient.h
 // Date: 11/20/2025 8:43 PM PT
-// Compiler: PIO Version 1.72.0
-// Atuhor: Originally an example called ESP8266-mqtt / slightly modified and cleaned up by Farid Farahmand
-// OUTPUT: publishes 1,2,3,.... on outTopic every publishTimeInterval
+// Compiler: PIO Version 3.3.4
+// Atuhor: Zella Waltman
+// OUTPUT: publishes 1 and 0 to outTopic/zellas_mqtt, potentiometer values to outTopic/zellas_mqtt/pot
 // INPUT: Received value from the broker on inTopic  
 // SETUP: To see the published values go to http://www.hivemq.com/demos/websocket-client/ 
-//        subscribe to inTopic and outTopic. You can also create an APP using MQTT Dash
+//        subscribe to inTopic and outTopic, or Zella's MQTT app.
 // Versions: 
 //  v1: Nov-24-2022 - Cleaned up version 
 //  v2: Nov-20-2025 - Zella's version
@@ -22,34 +29,38 @@
 #include <ESP8266HTTPClient.h>
 #include <PubSubClient.h>
 
-// ---------- WiFi variables ----------
-const char* ssid     = "BigPapa";      // Enter your WiFi name
-const char* password = "wificonnect";  // Enter WiFi password
+// WiFi variables
+//-----------------------------
+const char* ssid     = "BigPapa";      // Wifi Name
+const char* password = "wificonnect";  // WiFi Password
 
-// ---------- MQTT variables ----------
+// MQTT variables
+//-----------------------------
 const char* mqtt_server = "broker.mqtt-dashboard.com";
 
-// Topic to RECEIVE LED control (App → ESP)
+// Topic to get LED control (App -> ESP)
 const char* subscribeTopic = "testtopic/temp/inTopic/zellas_mqtt";
 
-// Topic to SEND switch events (ESP → App)
-const char* switchTopic    = "testtopic/temp/outTopic/zellas_mqtt";
+// Topic to send switch events (ESP -> App)
+const char* switchTopic = "testtopic/temp/outTopic/zellas_mqtt";
 
-// Topic to SEND potentiometer values (ESP → App)
-const char* potTopic       = "testtopic/temp/outTopic/zellas_mqtt/pot";
+// Topic to send potentiometer values (ESP -> App)
+const char* potTopic = "testtopic/temp/outTopic/zellas_mqtt/pot";
 
-#define publishTimeInterval 2000  // ms between pot publishes
+#define publishTimeInterval 2000  // ms between potentiometer publishes
 
-// ---------- Pins ----------
+// Pins
+//-----------------------------
 #define BTN    D1
 #define ledPin D2
 #define potPin A0   // potentiometer wiper
 
-// ADC & Voltage Divider Constants
+// ADC Constant
 //----------------------------------
-#define VIN 3.3 // 3.3 V Power Voltage
+#define VIN 3.3 // 3.3 V Voltage
 
-// ---------- Globals ----------
+// Global Variables
+//-----------------------------
 unsigned long lastMsg = 0;
 #define MSG_BUFFER_SIZE (50)
 char msg[MSG_BUFFER_SIZE];
@@ -58,45 +69,50 @@ int  ledStatus = 0;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// --------- Button / timer state ----------
-volatile bool g_btnEvent = false;       // Set by ISR when button pressed
-bool switchPendingZero   = false;       // If true, we still need to send "0"
-unsigned long switchOneSentTime = 0;    // When we sent "1"
+// Button / timer state
+//-----------------------------
+volatile bool g_btnEvent = false; // Button Press ISR Flag
+bool switchPendingZero = false; // Sent 0 flag
+unsigned long switchOneSentTime = 0; // Time when 1 was sent
 
 // -----------------------------------------------------
-// Interrupt Service Routine for button
+// Button Interrupt
 // -----------------------------------------------------
 IRAM_ATTR void onButtonISR() {
   g_btnEvent = true;  // just set a flag, keep ISR short
 }
 
 // -----------------------------------------------------
-// Initialize Button (with pull-up)
+// Initialize Button
 // -----------------------------------------------------
 void buttonInit() {
-  // Button wired from D1 to GND
   pinMode(BTN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(BTN), onButtonISR, FALLING);
 }
 
+// -----------------------------------------------------
+// Potentometer Voltage Read
+// -----------------------------------------------------
 void potentiometer() {
   unsigned long now = millis();
-  if (now - lastMsg > publishTimeInterval) {
+  if (now - lastMsg > publishTimeInterval) { // Read value every 2000 ms (2s)
     lastMsg = now;
 
-    int potVal = analogRead(potPin);  // 0–1023
+    int potVal = analogRead(potPin);  // 0–1023 ADC value
 
-    // Convert from analog to voltage (LDR Analog Output * Resolution)
+    // Convert ADC Value -> Voltage (value * 3.3V/2^10)
     float Vout = float(potVal) * (VIN / float(1023));
 
-    // Publish Vout as text
+    // Publish Voltage as text
     snprintf(msg, MSG_BUFFER_SIZE, "%.3f", Vout);
 
+    // Display to user
     Serial.print("Publishing pot value: ");
     Serial.print(msg);
     Serial.print(" to ");
     Serial.println(potTopic);
 
+    // Publish Voltage
     client.publish(potTopic, msg);
   }
 }
@@ -127,14 +143,15 @@ void setup_wifi() {
 }
 
 // -----------------------------------------------------
-// MQTT callback - called when a subscribed message arrives
+// MQTT Callback
 // -----------------------------------------------------
+// Called when a subscribed message arrives
 void callback(char* topic, byte* payload, int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
 
-  // Print the full payload for debugging
+  // Print full payload for debugging
   String incoming = "";
   for (int i = 0; i < length; i++) {
     char c = (char)payload[i];
@@ -143,17 +160,17 @@ void callback(char* topic, byte* payload, int length) {
   }
   Serial.println();
 
-  // Only handle messages for our subscribeTopic
+  // Only handle messages for subscribeTopic
   if (strcmp(topic, subscribeTopic) == 0 && length > 0) {
     char first = payload[0];
 
-    // We expect '1' or '0'
-    // ASSUMPTION: external LED on D2 -> HIGH = ON, LOW = OFF
+    // Control LED from 1 or 0 input
     if (first == '1') {
       digitalWrite(ledPin, HIGH);  // LED ON
       ledStatus = 1;
       Serial.println("LED turned ON (from MQTT)");
-    } else if (first == '0') {
+    } 
+    else if (first == '0') {
       digitalWrite(ledPin, LOW);   // LED OFF
       ledStatus = 0;
       Serial.println("LED turned OFF (from MQTT)");
@@ -168,18 +185,20 @@ void reconnect() {
   // Loop until reconnected
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
-    // Create a random client ID
+
+    // Create random client ID
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
 
-    // Attempt to connect
+    // Attempt to connect to MQTT
     if (client.connect(clientId.c_str())) {
       Serial.println("connected");
-      // resubscribe
+      // resubscribe to MQTT
       client.subscribe(subscribeTopic);
       Serial.print("Subscribed to: ");
       Serial.println(subscribeTopic);
-    } else {
+    } 
+    else { // Fail Case
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
@@ -198,25 +217,29 @@ void buttonPress() {
   // If the button has been pressed (ISR set flag)
   if (g_btnEvent) {
     g_btnEvent = false; // Reset Interrupt flag
-    if (current - lastBtn > 50) { // debounce
+    if (current - lastBtn > 50) { // debounce ~50 ms
       lastBtn = current;
 
+      // Acknowledge press for user
       Serial.println("Switch press detected");
 
-      // Immediately send "1" on switchTopic
+      // Send 1 to switch topic on MQTT
       client.publish(switchTopic, "1");
+      // Display for user
       Serial.print("Published 1 to ");
       Serial.println(switchTopic);
 
-      // Start 5-second timer to send "0"
+      // Start 5s timer to send 0
       switchPendingZero  = true;
       switchOneSentTime  = millis();
     }
   }
 
-  // If we previously sent 1, send 0 five seconds later
+  // If 1 was sent, send 0 5s later
   if (switchPendingZero && (millis() - switchOneSentTime >= 5000)) {
+    // Send 0 to switch topic on MQTT
     client.publish(switchTopic, "0");
+    // Display for user
     Serial.print("Published 0 to ");
     Serial.println(switchTopic);
     switchPendingZero = false;
@@ -228,15 +251,16 @@ void buttonPress() {
 // -----------------------------------------------------
 void setup() {
   pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);  // LED OFF at start (for external LED: LOW = off, HIGH = on)
   pinMode(potPin, INPUT);
 
   Serial.begin(9600);
-  setup_wifi();
+  setup_wifi(); // Wifi Connection Details
 
-  buttonInit();  // <<< IMPORTANT: enable button + interrupt
+  digitalWrite(ledPin, LOW); // LED OFF at start
 
-  client.setServer(mqtt_server, 1883);  // plain TCP
+  buttonInit();  // Initialize button interrupt
+
+  client.setServer(mqtt_server, 1883); // Connect to MQTT
   client.setCallback(callback);
 }
 
@@ -247,11 +271,11 @@ void loop() {
   if (!client.connected()) {
     reconnect();
   }
-  client.loop();  // handles MQTT traffic & triggers callback()
+  client.loop();  // handle MQTT traffic & trigger callback()
 
-  // 1) Handle switch behaviour (press → publish 1, then 0 after 5s)
+  // Check for button press (press = 1, then 0 after 5s)
   buttonPress();
 
-  // 2) Periodically publish potentiometer value
+  // Periodically publish potentiometer value
   potentiometer();
 }

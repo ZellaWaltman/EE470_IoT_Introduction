@@ -1,5 +1,22 @@
-# relay/relay_node.py
-# Relay node: subscribes to ESP pot topic and pushes data into Hostinger MySQL
+#-----------------------------
+# Title: relay_node
+#-----------------------------
+# Program Details:
+#-----------------------------
+# Purpose: The purpose of this program is to connect to broker.mqtt-dashboard.com,
+# and publish and subscribe to  a topic which contains the voltage readings of the
+# potentiometer. These values are then pushed to the Hostinger Database.
+#
+# Dependencies: paho.mqtt.client, pymysql
+# Date: 11/22/2025 12:45 PM PT
+# Compiler: Python 3.13.5
+# Atuhor: Zella Waltman
+# OUTPUT: Pushes potentiometer values from outTopic/zellas_mqtt/pot
+# INPUT: Received potentiometer values from the broker on outTopic/zellas_mqtt/pot
+# SETUP:
+# Versions: 
+#  v1: Nov-22-2025, original version
+#-----------------------------
 
 import paho.mqtt.client as mqtt
 import pymysql
@@ -14,8 +31,7 @@ TOPIC = "testtopic/temp/outTopic/zellas_mqtt/pot" # ESP Potentiometer Topic
 # --------------------------------------------
 # DATABASE SETTINGS
 # --------------------------------------------
-# Fill these in with your Hostinger DB details
-HOST = "localhost" # MySQL server's IP address/hostname
+HOST = "us-phx-web641.main-hosting.eu" # MySQL server's IP address/hostname
 USER = "u551180265_db_ESP_Program" # MySQL username
 PASSWORD = "EE473espDB" # MySQL password
 DATABASE = "u551180265_ESP_Program" # SQL DataBase Name
@@ -41,10 +57,10 @@ def push_value_to_db(sensor_value: float):
 
         # Insert Potentiometer Values using mySQL commands
         cursor = conn.cursor() # Create cursor object to execute SQL commands
-        insert_query = "INSERT INTO pot_values (value) VALUES (%s)" # SQL statement, insert new row w/ pot value
+        insert_query = "INSERT INTO potentiometer_values (potentiometer_value) VALUES (%s)" # SQL statement, insert new row w/ pot value
         cursor.execute(insert_query, (sensor_value,)) # send SQL command w/ sensor_value replacing %s
         conn.commit() # save inserted row
-        print(f"[DB] Inserted value {sensor_value} into pot_values") # Print success message
+        print(f"[DB] Inserted value {sensor_value} into potentiometer_values") # Print success message
 
     # Error Message in case of failure
     except pymysql.MySQLError as err:
@@ -65,17 +81,17 @@ def push_value_to_db(sensor_value: float):
 # --------------------------------------------
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print(f"[MQTT] Connected to {BROKER_URL}:{BROKER_PORT}")
+        print(f"Connected to {BROKER_URL}:{BROKER_PORT}")
         client.subscribe(TOPIC)
-        print(f"[MQTT] Subscribed to topic: {TOPIC}")
+        print(f"Subscribed to topic: {TOPIC}")
     else:
-        print(f"[MQTT] Failed to connect, return code {rc}")
+        print(f"Failed to connect, return code {rc}")
 
 # Get Potentiometer Value from ESP
 # --------------------------------------------
 def on_message(client, userdata, msg):
     payload = msg.payload.decode().strip() # Remove white space / newline
-    print(f"[MQTT] Received from {msg.topic}: {payload}") # Display recieved info
+    print(f"Received from {msg.topic}: {payload}") # Display recieved info
 
     # ESP sends Vout as string like "1.234"
     try:
@@ -93,16 +109,17 @@ def on_message(client, userdata, msg):
 # MAIN
 # --------------------------------------------
 def main():
-    # Simple TCP MQTT client
+    # Create MQTT client instance
     client = mqtt.Client()
 
+    # Attach callback functions
     client.on_connect = on_connect # On connection, display confirmation
     client.on_message = on_message # On recieved value from ESP, convert & display
 
     # Display Connecting Message
     print(f"[MQTT] Connecting to broker {BROKER_URL}:{BROKER_PORT} ...")
 
-    # Connect mqtt at HiveMQTT, port 1883, keepalive = 1 min interval
+    # Connect to HiveMQ broker, port 1883, keepalive = 1 min interval
     client.connect(BROKER_URL, BROKER_PORT, 60)
 
     # loop runs for data to reach DB
